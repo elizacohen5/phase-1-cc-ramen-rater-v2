@@ -26,11 +26,16 @@ const addSubmitListener = () => {
   document.querySelector("form").addEventListener("submit", (event) => {
     event.preventDefault();
 
+    const newRamenImage = event.target["image"].value;
     const newRamenName = event.target["name"].value;
     const newRamenRestaurant = event.target["restaurant"].value;
     const newRamenRating = event.target["rating"].value;
     const newRamenComment = event.target["new-comment"].value;
-    const newramenImage = event.target["image"].value;
+
+    const img = document.createElement("img");
+    const ramenDiv = document.getElementById("ramen-menu");
+    img.src = newRamenImage;
+    ramenDiv.append(img);
 
     fetch("http://localhost:3000/ramens", {
       method: "POST",
@@ -41,7 +46,7 @@ const addSubmitListener = () => {
       body: JSON.stringify({
         name: newRamenName,
         restaurant: newRamenRestaurant,
-        image: newramenImage,
+        image: newRamenImage,
         rating: newRamenRating,
         comment: newRamenComment
       })
@@ -53,7 +58,8 @@ const addSubmitListener = () => {
   })
 }
 
-// Delete ramen
+// Delete ramen, function added to button event listener inside of displayRamens()
+
 function deleteRamen(id) {
   fetch(`http://localhost:3000/ramens/${id}`, {
     method: 'DELETE',
@@ -84,7 +90,16 @@ function displayRamens() {
         img.addEventListener("click", () => {
           handleClick(ramen)
         document.querySelector("button").addEventListener("click", () => {
-          deleteRamen(ramen.id, ramen);
+          deleteRamen(ramen.id);
+          console.log(ramen.id)
+          img.src = "";
+          let ratingDisplay = document.getElementById("rating-display")
+          let commentDisplay = document.getElementById("comment-display")
+          ratingDisplay.textContent = "";
+          commentDisplay.textContent = "";
+          document.querySelector('#ramen-detail .detail-image').src = ""
+          document.querySelector('#ramen-detail .name').textContent = ""
+          document.querySelector('#ramen-detail .restaurant').textContent = ""
         })
         })
       })
