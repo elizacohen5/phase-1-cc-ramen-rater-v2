@@ -1,41 +1,27 @@
 // index.js
 
-// Click on an image from the #ramen-menu div and fire a callback called
-// handleClick to see all the info about that ramen displayed inside the
-// #ramen-detail div (where it says insert comment here and insert rating here)
+function updateRamenDisplay(image, name, restaurant) {
+  document.querySelector('#ramen-detail .detail-image').src = image
+  document.querySelector('#ramen-detail .name').textContent = name
+  document.querySelector('#ramen-detail .restaurant').textContent = restaurant
+  }
+
+function ratingAndCommentContent(ratingContent, displayContent) {
+  let ratingDisplay = document.getElementById("rating-display")
+  let commentDisplay = document.getElementById("comment-display")
+  ratingDisplay.textContent = ratingContent;
+  commentDisplay.textContent = displayContent;
+}
 
 const handleClick = (ramen) => {
   console.log(`clicked ${ramen.name}`)
-  let ratingDisplay = document.getElementById("rating-display")
-  let commentDisplay = document.getElementById("comment-display")
-  ratingDisplay.textContent = ramen.rating;
-  commentDisplay.textContent = ramen.comment;
-
-  document.querySelector('#ramen-detail .detail-image').src = ramen.image
-  document.querySelector('#ramen-detail .name').textContent = ramen.name
-  document.querySelector('#ramen-detail .restaurant').textContent = ramen.restaurant
+  ratingAndCommentContent(ramen.rating, ramen.comment)
+  updateRamenDisplay(ramen.image, ramen.name, ramen.restaurant);
 };
 
-// Attach a submit events listener to the new-ramen form using a function called 
-// addSubmitListener. After the submission, create a new ramen and add it to the#ramen-menu 
-// div. The new ramen does not need to persist; in other words, if you refresh the page,
-// it's okay that the new ramen is no longer on the page.
-// Updated to add post request to add new ramen to the database 
-
 const addSubmitListener = () => {
-  document.querySelector("form").addEventListener("submit", (event) => {
+  document.querySelector("#new-ramen").addEventListener("submit", (event) => {
     event.preventDefault();
-
-    const newRamenImage = event.target["image"].value;
-    const newRamenName = event.target["name"].value;
-    const newRamenRestaurant = event.target["restaurant"].value;
-    const newRamenRating = event.target["rating"].value;
-    const newRamenComment = event.target["new-comment"].value;
-
-    const img = document.createElement("img");
-    const ramenDiv = document.getElementById("ramen-menu");
-    img.src = newRamenImage;
-    ramenDiv.append(img);
 
     fetch("http://localhost:3000/ramens", {
       method: "POST",
@@ -44,11 +30,11 @@ const addSubmitListener = () => {
         "Accept": "application/json"
       },
       body: JSON.stringify({
-        name: newRamenName,
-        restaurant: newRamenRestaurant,
-        image: newRamenImage,
-        rating: newRamenRating,
-        comment: newRamenComment
+        name: event.target["name"].value,
+        restaurant: event.target["restaurant"].value,
+        image: event.target["image"].value,
+        rating: event.target["rating"].value,
+        comment: event.target["new-comment"].value
       })
     })
     .then(response => {
@@ -57,8 +43,6 @@ const addSubmitListener = () => {
     })
   })
 }
-
-// Delete ramen, function added to button event listener inside of displayRamens()
 
 function deleteRamen(id) {
   fetch(`http://localhost:3000/ramens/${id}`, {
@@ -69,11 +53,6 @@ function deleteRamen(id) {
   })
   .then(response => response.json())
 }
-
-// See all ramen images in the div with the id of ramen-menu.
-// When the page loads, fire a function called displayRamens that 
-// requests the data from the server to get all the ramen objects.
-// Then, display the image for each of the ramen using an img tag inside the #ramen-menu div.
 
 function displayRamens() {
   document.addEventListener("DOMContentLoaded", () => {
@@ -91,15 +70,10 @@ function displayRamens() {
           handleClick(ramen)
         document.querySelector("button").addEventListener("click", () => {
           deleteRamen(ramen.id);
-          console.log(ramen.id)
+          console.log(`deleted ramen id: ${ramen.id}`)
           img.src = "";
-          let ratingDisplay = document.getElementById("rating-display")
-          let commentDisplay = document.getElementById("comment-display")
-          ratingDisplay.textContent = "";
-          commentDisplay.textContent = "";
-          document.querySelector('#ramen-detail .detail-image').src = ""
-          document.querySelector('#ramen-detail .name').textContent = ""
-          document.querySelector('#ramen-detail .restaurant').textContent = ""
+          ratingAndCommentContent("", "")
+          updateRamenDisplay("", "", "");
         })
         })
       })
@@ -107,10 +81,20 @@ function displayRamens() {
 });
 }
 
+function updateRamenRatingandComment() {
+  document.querySelector("#edit-ramen").addEventListener("submit", (event) => {
+    event.preventDefault();
+    let ratingUpdate = event.target["rating"].value;
+    let commentUpdate = event.target["new-comment"].value;
+    ratingAndCommentContent(ratingUpdate, commentUpdate)
+  })
+}
+
 const main = () => {
   // Invoke displayRamens here
   displayRamens()
   addSubmitListener()
+  updateRamenRatingandComment()
 }
 
 main()
