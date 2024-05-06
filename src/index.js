@@ -38,8 +38,17 @@ const addSubmitListener = () => {
         comment: event.target["new-comment"].value
       })
     })
-    .then(response => {
-      response.json()
+    .then(response => response.json())
+    .then(ramen => {
+      handleClick(ramen)
+      const img = document.createElement("img");
+      img.src = ramen.image;
+      img.id = ramen.id;
+      const ramenDiv = document.getElementById("ramen-menu");
+      ramenDiv.append(img);
+      img.addEventListener("click", () => {
+        handleClick(ramen)
+      })
     })
   })
 }
