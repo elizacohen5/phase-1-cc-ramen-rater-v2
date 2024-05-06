@@ -1,4 +1,5 @@
 // index.js
+let currentRamen = null;
 
 function updateRamenDisplay(image, name, restaurant) {
   document.querySelector('#ramen-detail .detail-image').src = image
@@ -14,9 +15,9 @@ function ratingAndCommentContent(ratingContent, displayContent) {
 }
 
 const handleClick = (ramen) => {
-  console.log(`clicked ${ramen.name}`)
   ratingAndCommentContent(ramen.rating, ramen.comment)
   updateRamenDisplay(ramen.image, ramen.name, ramen.restaurant);
+  currentRamen = ramen.id;
 };
 
 const addSubmitListener = () => {
@@ -39,13 +40,12 @@ const addSubmitListener = () => {
     })
     .then(response => {
       response.json()
-      console.log(response);
     })
   })
 }
 
-function deleteRamen(id) {
-  fetch(`http://localhost:3000/ramens/${id}`, {
+function deleteRamen() {
+  fetch(`http://localhost:3000/ramens/${currentRamen}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
@@ -59,23 +59,22 @@ function displayRamens() {
     fetch("http://localhost:3000/ramens")
     .then(response => response.json())
     .then(data => {
-      console.log(data)
       handleClick(data[0]) // Displays the first ramen upon loading the page
       data.map(ramen => {
         const img = document.createElement("img");
-        const ramenDiv = document.getElementById("ramen-menu");
         img.src = ramen.image;
+        img.id = ramen.id;
+        const ramenDiv = document.getElementById("ramen-menu");
         ramenDiv.append(img);
         img.addEventListener("click", () => {
           handleClick(ramen)
-        document.querySelector("button").addEventListener("click", () => {
-          deleteRamen(ramen.id);
-          console.log(`deleted ramen id: ${ramen.id}`)
-          img.src = "";
-          ratingAndCommentContent("", "")
-          updateRamenDisplay("", "", "");
         })
-        })
+      })
+      document.querySelector("button").addEventListener("click", () => {
+        deleteRamen();
+        document.getElementById(currentRamen).src = "";
+        ratingAndCommentContent("", "");
+        updateRamenDisplay("", "", "");
       })
     })
 });
